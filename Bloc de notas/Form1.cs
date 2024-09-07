@@ -16,9 +16,53 @@ namespace Bloc_de_notas
         public Form1()
         {
             InitializeComponent();
+            tabControl1.DrawMode = TabDrawMode.OwnerDrawFixed;
+            tabControl1.DrawItem += new DrawItemEventHandler(tabControl1_DrawItem);
+            tabControl1.MouseDown += new MouseEventHandler(tabControl1_MouseDown);
+            NewTab();
+        }
+
+        // Drawing the tab and the close button
+        private void tabControl1_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            TabPage tabPage = tabControl1.TabPages[e.Index];
+            Rectangle tabRect = tabControl1.GetTabRect(e.Index);
+            tabRect.Inflate(-2, -2);
+
+            // Draw tab text
+            e.Graphics.DrawString(tabPage.Text, e.Font, Brushes.Black, tabRect.X + 2, tabRect.Y + 2);
+
+            // Draw close button
+            Rectangle closeButton = new Rectangle(
+                tabRect.Right - 15, // Position the close button near the right edge
+                tabRect.Top + 4,    // Center vertically
+                12, 12);            // Size of the close button
+
+            e.Graphics.DrawRectangle(Pens.Black, closeButton);
+            e.Graphics.DrawString("X", e.Font, Brushes.Black, closeButton.X, closeButton.Y - 2);
+        }
+
+        // Handling mouse clicks on the close button
+        private void tabControl1_MouseDown(object sender, MouseEventArgs e)
+        {
+            for (int i = 0; i < tabControl1.TabPages.Count; i++)
+            {
+                Rectangle tabRect = tabControl1.GetTabRect(i);
+                Rectangle closeButton = new Rectangle(
+                    tabRect.Right - 15,
+                    tabRect.Top + 4,
+                    12, 12);
+
+                if (closeButton.Contains(e.Location))
+                {
+                    tabControl1.TabPages.RemoveAt(i);
+                    break;
+                }
+            }
         }
 
         int tabCounter = 0;
+        const string emptySpace = "     ";
 
         public TabPage CreateTab()
         {
@@ -39,7 +83,7 @@ namespace Bloc_de_notas
             tabPage.Padding = new System.Windows.Forms.Padding(3);
             tabPage.Size = new System.Drawing.Size(792, 400);
             tabPage.TabIndex = 0;
-            tabPage.Text = "New File " + tabCounter;
+            tabPage.Text = "New File " + tabCounter + emptySpace;
             tabPage.UseVisualStyleBackColor = true;
 
             return tabPage;
@@ -66,7 +110,7 @@ namespace Bloc_de_notas
             tabPage.Padding = new System.Windows.Forms.Padding(3);
             tabPage.Size = new System.Drawing.Size(792, 400);
             tabPage.TabIndex = 0;
-            tabPage.Text = fileName;
+            tabPage.Text = fileName + emptySpace;
             tabPage.UseVisualStyleBackColor = true;
 
             return tabPage;
@@ -76,7 +120,8 @@ namespace Bloc_de_notas
         {
             TabPage tabPage = CreateTab();
 
-            this.tabControl1.Controls.Add(tabPage);
+            tabControl1.Controls.Add(tabPage);
+            tabControl1.SelectedTab = tabPage;
         }
 
         private void nuevoArchivoToolStripMenuItem_Click(object sender, EventArgs e)
@@ -95,7 +140,8 @@ namespace Bloc_de_notas
             foreach (string filename in fileDialog.FileNames)
             {
                 TabPage tabPage = CreateTab(filename);
-                this.tabControl1.Controls.Add(tabPage);
+                tabControl1.Controls.Add(tabPage);
+                tabControl1.SelectedTab = tabPage;
             }
         }
     }
