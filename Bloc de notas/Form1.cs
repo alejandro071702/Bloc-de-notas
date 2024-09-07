@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Bloc_de_notas
 {
@@ -76,6 +77,7 @@ namespace Bloc_de_notas
             richTextBox.Size = new System.Drawing.Size(786, 394);
             richTextBox.TabIndex = 0;
             richTextBox.Text = "";
+            richTextBox.TextChanged += new System.EventHandler(textBox_TextChanged);
 
             tabPage.Controls.Add(richTextBox);
             tabPage.Location = new System.Drawing.Point(4, 22);
@@ -101,6 +103,7 @@ namespace Bloc_de_notas
             richTextBox.Size = new System.Drawing.Size(786, 394);
             richTextBox.TabIndex = 0;
             richTextBox.Text = File.ReadAllText(filePath);
+            richTextBox.TextChanged += new System.EventHandler(textBox_TextChanged);
 
             string fileName = Path.GetFileName(filePath);
 
@@ -112,6 +115,7 @@ namespace Bloc_de_notas
             tabPage.TabIndex = 0;
             tabPage.Text = fileName + emptySpace;
             tabPage.UseVisualStyleBackColor = true;
+
 
             return tabPage;
         }
@@ -143,6 +147,21 @@ namespace Bloc_de_notas
                 tabControl1.Controls.Add(tabPage);
                 tabControl1.SelectedTab = tabPage;
             }
+        }
+
+        private void textBox_TextChanged (object sender, EventArgs e)
+        {
+            if (!(sender is RichTextBox)) return;
+
+            RichTextBox tt = (RichTextBox)sender;
+
+            int cursorPosition = tt.SelectionStart;
+
+            // Reemplaza ":)" por el emoji de cara feliz
+            tt.Text = tt.Text.Replace(":)", "😊");
+
+            // Restaura la posición del cursor después de los cambios
+            tt.SelectionStart = cursorPosition;
         }
     }
 }
