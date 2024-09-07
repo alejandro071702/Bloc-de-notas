@@ -65,25 +65,33 @@ namespace Bloc_de_notas
         int tabCounter = 0;
         const string emptySpace = "     ";
 
-        public TabPage CreateTab()
+        public RichTextBox CreateRichTextBox()
         {
-            TabPage tabPage = new TabPage();
             RichTextBox richTextBox = new RichTextBox();
 
             richTextBox.AcceptsTab = true;
             richTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             richTextBox.Location = new System.Drawing.Point(3, 3);
             //richTextBox.Name = "richTextBox1";
-            richTextBox.Size = new System.Drawing.Size(786, 394);
+            //richTextBox.Size = new System.Drawing.Size(786, 394);
             richTextBox.TabIndex = 0;
+            richTextBox.SelectionFont = new Font("Arial", 30, FontStyle.Regular);
             richTextBox.Text = "";
             richTextBox.TextChanged += new System.EventHandler(textBox_TextChanged);
+
+            return richTextBox;
+        }
+
+        public TabPage CreateTab()
+        {
+            TabPage tabPage = new TabPage();
+            RichTextBox richTextBox = CreateRichTextBox();
 
             tabPage.Controls.Add(richTextBox);
             tabPage.Location = new System.Drawing.Point(4, 22);
             tabPage.Name = "New File " + ++tabCounter;
-            tabPage.Padding = new System.Windows.Forms.Padding(3);
-            tabPage.Size = new System.Drawing.Size(792, 400);
+            tabPage.Padding = new System.Windows.Forms.Padding(5);
+            //tabPage.Size = new System.Drawing.Size(792, 400);
             tabPage.TabIndex = 0;
             tabPage.Text = "New File " + tabCounter + emptySpace;
             tabPage.UseVisualStyleBackColor = true;
@@ -94,18 +102,11 @@ namespace Bloc_de_notas
         public TabPage CreateTab(string filePath)
         {
             TabPage tabPage = new TabPage();
-            RichTextBox richTextBox = new RichTextBox();
-
-            richTextBox.AcceptsTab = true;
-            richTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            richTextBox.Location = new System.Drawing.Point(3, 3);
-            //richTextBox.Name = "richTextBox1";
-            richTextBox.Size = new System.Drawing.Size(786, 394);
-            richTextBox.TabIndex = 0;
-            richTextBox.Text = File.ReadAllText(filePath);
-            richTextBox.TextChanged += new System.EventHandler(textBox_TextChanged);
-
+            RichTextBox richTextBox = CreateRichTextBox();
             string fileName = Path.GetFileName(filePath);
+
+
+            richTextBox.Text = File.ReadAllText(filePath);
 
             tabPage.Controls.Add(richTextBox);
             tabPage.Location = new System.Drawing.Point(4, 22);
@@ -162,6 +163,25 @@ namespace Bloc_de_notas
 
             // Restaura la posición del cursor después de los cambios
             tt.SelectionStart = cursorPosition;
+        }
+
+        private void guardarArchivoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (tabControl1.SelectedTab == null)
+            {
+                MessageBox.Show("No hay ningun archivo abierto", "Accion Invalida");
+                return;
+            }
+
+            SaveFileDialog fileDialog = new SaveFileDialog();
+
+            fileDialog.Filter = "Archivos de texto (*.txt)|*.txt|Todos los archivos|*.*";
+            fileDialog.FileName = tabControl1.SelectedTab.Name;
+            fileDialog.AddExtension = true;
+
+            if (fileDialog.ShowDialog() != DialogResult.OK) return;
+
+            File.WriteAllText(fileDialog.FileName, tabControl1.SelectedTab.Controls[0].Text);
         }
     }
 }
